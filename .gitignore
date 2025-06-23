@@ -1,0 +1,35 @@
+# Python compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+venv/
+.venv/
+env/
+.env/
+
+.vscode/        # VS Code
+.idea/          # PyCharm/IntelliJ IDEA
+*.swp           # Vim swap files
+*~              # Emacs backup files
+.DS_Store       # macOS system files
+Thumbs.db       # Windows thumbnail cache
+
+*.log
+!app.log        # Exclude specific log files if you want to inspect them, but generally ignored
+
+.env
+.flaskenv
+
+instance/
+
+.pytest_cache/
+.coverage
+
+.ipynb_checkpoints/
+
+*.db
+*.sqlite
+*.sqlite3
