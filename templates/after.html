@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Result</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #e6ffee; /* Light Green */
+            font-family: 'Roboto', sans-serif;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 40px 50px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            text-align: center;
+            max-width: 700px;
+            width: 100%;
+        }
+        h1 {
+            color: #2e8b57; /* Sea Green */
+            margin-bottom: 25px;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+        .prediction-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        /* .prediction-image styles removed as image display is on hold */
+        .predicted-species {
+            font-size: 2.8em;
+            font-weight: bold;
+            color: #0d47a1; /* Dark Blue */
+            margin-bottom: 10px;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        .confidence-message {
+            font-style: italic;
+            color: #555;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .details-section {
+            text-align: left;
+            margin-top: 30px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        .details-section h2 {
+            color: #2e8b57;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+        .details-section p {
+            margin-bottom: 10px;
+            font-size: 1.05em;
+            line-height: 1.5;
+        }
+        .details-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 15px 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+        }
+        .details-section li {
+            background-color: #f9f9f9;
+            padding: 10px 15px;
+            border-radius: 5px;
+            border: 1px solid #eee;
+        }
+        .details-section li strong {
+            color: #0d47a1;
+        }
+
+        .probabilities-section {
+            margin-top: 30px;
+            text-align: left;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+        .probabilities-section h2 {
+            color: #2e8b57;
+            font-size: 1.8em;
+            margin-bottom: 15px;
+        }
+        .probability-bar-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .probability-label {
+            min-width: 120px;
+            font-weight: bold;
+            color: #555;
+            margin-right: 10px;
+        }
+        .probability-bar-wrapper {
+            flex-grow: 1;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            height: 25px;
+            overflow: hidden;
+            position: relative;
+        }
+        .probability-bar {
+            height: 100%;
+            background-color: #4CAF50; /* Green */
+            width: 0%; /* Will be set by JS or inline style */
+            border-radius: 5px;
+            transition: width 1s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 5px;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+        .probability-bar.low { background-color: #ffc107; } /* Orange */
+        .probability-bar.medium { background-color: #2196f3; } /* Blue */
+        .probability-bar.high { background-color: #4CAF50; } /* Green */
+
+        .go-home-link {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 12px 25px;
+            background-color: #4CAF50; /* Green */
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .go-home-link:hover {
+            background-color: #45a049;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Prediction Result</h1>
+
+        <div class="prediction-section">
+            {% if species_info %}
+                {# Image display is on hold #}
+                <div class="predicted-species">{{ species_info.name }}</div>
+                <div class="confidence-message">{{ confidence_message }}</div>
+            {% else %}
+                <p class="predicted-species">No prediction available.</p>
+                <p>There was an issue processing your request. Please try again.</p>
+            {% endif %}
+        </div>
+
+        {% if predicted_features %}
+            <div class="details-section">
+                <h2>Your Entered Measurements:</h2>
+                <ul>
+                    {% set input_labels = ['Sepal Length', 'Sepal Width', 'Petal Length', 'Petal Width'] %}
+                    {% for i in range(predicted_features|length) %}
+                        <li><strong>{{ input_labels[i] }}:</strong> {{ "%.1f" % predicted_features[i] }} cm</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        {% if probabilities %}
+            <div class="probabilities-section">
+                <h2>Prediction Probabilities:</h2>
+                {% for prob_data in probabilities %}
+                    <div class="probability-bar-container">
+                        <span class="probability-label">{{ prob_data.name }}:</span>
+                        <div class="probability-bar-wrapper">
+                            {% set bar_width = prob_data.probability.replace('%','') | float %}
+                            {% set bar_class = 'low' if bar_width < 40 else ('medium' if bar_width < 70 else 'high') %}
+                            <div class="probability-bar {{ bar_class }}" style="width: {{ bar_width }}%;">
+                                {{ prob_data.probability }}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if species_info and species_info.description %}
+            <div class="details-section">
+                <h2>About {{ species_info.name }}:</h2>
+                <p>{{ species_info.description }}</p>
+            </div>
+        {% endif %}
+
+        <a href='/' class="go-home-link">Try Another Prediction</a>
+    </div>
+</body>
+</html>
