@@ -3,13 +3,20 @@ import numpy as np
 import os
 import logging
 from sklearn.datasets import load_iris # To get feature names dynamically
+from config import config_by_name # Import config_by_name from config.py
+
+env_name = os.getenv('FLASK_ENV', 'development')
+current_config = config_by_name[env_name]
 
 # Configure logging for this module
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.INFO) # Set default logging level
 
-# Handler to write logs to a file
-log_file_path = os.path.join(os.path.dirname(__file__), '..', 'app.log')
+if logger.handlers:
+    for handler in logger.handlers[:]:
+        logger.removeHandler(handler)
+
+log_file_path = current_config.LOG_FILE # Use the LOG_FILE path from the loaded config
 file_handler = logging.FileHandler(log_file_path)
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 file_handler.setFormatter(formatter)
@@ -43,16 +50,23 @@ def get_feature_names():
     """Returns the feature names used by the model."""
     if _feature_names is None:
         # Try to load model to get feature names if not already loaded
-        logger.warning("Feature names requested before model was loaded.")
-        # This will raise an error if model path is invalid
-        load_iris_model(os.path.join(os.path.dirname(__file__), '..', 'iris.pkl'))
+        logger.warning("Feature names requested before model was loaded. Attempting to load model.")
+        # This will raise an error if model path is invalid based on current_config.MODEL_PATH
+        load_iris_model(current_config.MODEL_PATH)
     return _feature_names
 
 def predict_iris(features):
-
     if _model is None:
-        logger.warning("Model is not loaded. Cannot make prediction.")
-        return -1, [] # Indicate an error or uninitialized model
+        logger.warning("Model is not loaded. Attempting to load model before prediction.")
+        try:
+            # Attempt to load the model using the configured path
+            load_iris_model(current_config.MODEL_PATH)
+            if _model is None: # Check again if loading failed
+                logger.error("Failed to load model after attempt. Cannot make prediction.")
+                return -1, []
+        except Exception as e:
+            logger.error(f"Error during model loading attempt for prediction: {e}")
+            return -1, []
 
     try:
         input_array = np.array(features).reshape(1, -1).astype(float)

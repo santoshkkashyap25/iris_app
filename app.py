@@ -10,7 +10,6 @@ Config = config_by_name[env_config]
 
 app = Flask(__name__)
 app.config.from_object(Config)
-app.secret_key = 'your_super_secret_key_here' # Needed for flash messages
 
 # Configure logging for the Flask app
 logging.basicConfig(level=logging.INFO,
