@@ -7,7 +7,7 @@ This is a web application built with **Flask** that predicts the species of an I
 ## Live Demo
 
 Experience the Iris Flower Species Predictor live here:  
-[https://flotect.onrender.com/predict](https://flotect.onrender.com/predict)
+[https://flotect.onrender.com](https://flotect.onrender.com)
 
 ## Features
 
